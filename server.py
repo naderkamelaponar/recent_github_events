@@ -9,7 +9,7 @@ client=MongoClient(os.getenv('URI'))
 db = client['test']  # Create a database called "github_events"
 collection = db['my_collection']  # Collection to store GitHub events
 
-# Serve plain text on the home route
+# Serve plain text on the home route 
 @app.route('/')
 def index():
     return render_template('index.html')
