@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from datetime import datetime
 from bson import json_util  # Import json_util
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 client=MongoClient(os.getenv('URI'))
@@ -84,7 +85,7 @@ def handle_webhook():
             "author": data.get('author', 'unknown'),
             "from_branch": data.get('ref', '').split('/')[-1],
             "to_branch": data.get('ref', '').split('/')[-1],
-            "timestamp": data.get('timestamp', datetime.utcnow())  # If timestamp isn't passed, use current time
+            "timestamp": datetime.utcfromtimestamp(data.get('timestamp', datetime.utcnow()))  # If timestamp isn't passed, use current time
         }
 
     # Save event data to MongoDB
