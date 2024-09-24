@@ -50,33 +50,42 @@ def handle_webhook():
     if not data:
         return jsonify({"error": "No data received"}), 400
     event_type = request.headers.get('X-GitHub-Event')
-    print(data) 
-    if event_type == "push":
-        event_data = {
-            "action": event_type,
-            "author": data.get('sender', {}).get('login'),
-            "from_branch": data.get('ref', '').split('/')[-1],  # Extract branch from ref
-            "to_branch": data.get('ref', '').split('/')[-1],
-            "timestamp": datetime.utcnow()
-        }
-    elif event_type == "pull_request":
-        event_data = {
-            "action": event_type,
-            "author": data.get('sender', {}).get('login'),
-            "from_branch": data.get('pull_request', {}).get('head', {}).get('ref', ''),
-            "to_branch": data.get('pull_request', {}).get('base', {}).get('ref', ''),  # Corrected to base.ref
-            "timestamp": datetime.utcnow()
-        }
-    elif event_type == "merge":
-        event_data = {
-            "action": event_type,
-            "author": data.get('sender', {}).get('login'),
-            "from_branch": data.get('pull_request', {}).get('head', {}).get('ref', ''),
-            "to_branch": data.get('pull_request', {}).get('base', {}).get('ref', ''),
-            "timestamp": datetime.utcnow()
-        }
+    if event_type:
+        if event_type == "push":
+            event_data = {
+                "action": event_type,
+                "author": data.get('sender', {}).get('login'),
+                "from_branch": data.get('ref', '').split('/')[-1],  # Extract branch from ref
+                "to_branch": data.get('ref', '').split('/')[-1],
+                "timestamp": datetime.utcnow()
+            }
+        elif event_type == "pull_request":
+            event_data = {
+                "action": event_type,
+                "author": data.get('sender', {}).get('login'),
+                "from_branch": data.get('pull_request', {}).get('head', {}).get('ref', ''),
+                "to_branch": data.get('pull_request', {}).get('base', {}).get('ref', ''),  # Corrected to base.ref
+                "timestamp": datetime.utcnow()
+            }
+        elif event_type == "merge":
+            event_data = {
+                "action": event_type,
+                "author": data.get('sender', {}).get('login'),
+                "from_branch": data.get('pull_request', {}).get('head', {}).get('ref', ''),
+                "to_branch": data.get('pull_request', {}).get('base', {}).get('ref', ''),
+                "timestamp": datetime.utcnow()
+            }
+        else:
+            return jsonify({"error": "Unsupported event type"}), 400
     else:
-        return jsonify({"error": "Unsupported event type"}), 400
+        print(data)
+        event_data = {
+            "action": data.get('event_type', 'unknown'),  # This should be passed from the custom payload
+            "author": data.get('author', 'unknown'),
+            "from_branch": data.get('ref', '').split('/')[-1],
+            "to_branch": data.get('ref', '').split('/')[-1],
+            "timestamp": data.get('timestamp', datetime.utcnow())  # If timestamp isn't passed, use current time
+        }
 
     # Save event data to MongoDB
     collection.insert_one(event_data)
