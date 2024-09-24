@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Events</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #events {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #progress-bar {
+      width: auto;
+      max-width: 635px;
+      height: 10px;
+      background-color: #f0f0f0;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    #progress-fill {
+      height: 100%;
+      background-color: #4caf50;
+      transition: width 1s linear;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Recent GitHub Events</h1>
+  <div id="events"></div>
+  <br></br>
+  <div id="progress-bar">
+    <div id="progress-fill"></div>
+  </div>
+  <script>
+    async function fetchEvents() {
+      const response = await fetch('/events');
+      const events = await response.json();
+
+      const eventsDiv = document.getElementById('events');
+      eventsDiv.innerHTML = '';  // Clear old events
+
+      events.forEach(event => {
+        const eventHtml = `<p>${event.author} ${event.action} to ${event.to_branch} on ${new Date(event.timestamp).toLocaleString()}</p>`;
+        eventsDiv.innerHTML += eventHtml;
+      });
+    }
+
+    // Poll the server every 15 seconds
+    setInterval(fetchEvents, 15000);
+    fetchEvents();  // Initial load
+    let countdown = 15;
+    function updateCountdown() {
+      //document.title = `GitHub Events (${countdown}s)`;
+      countdown--;
+      if (countdown < 0) {
+        countdown = 15;
+      }
+      // Update progress bar
+      const progressFill = document.getElementById('progress-fill');
+      const progressWidth = (15 - countdown) / 15 * 100; // Calculate percentage
+      progressFill.style.width = `${progressWidth}%`;
+    }
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+
+</html>
