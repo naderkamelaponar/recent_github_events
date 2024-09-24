@@ -84,7 +84,7 @@ def handle_webhook():
             "author": data.get('author', 'unknown'),
             "from_branch": data.get('ref', '').split('/')[-1],
             "to_branch": data.get('ref', '').split('/')[-1],
-            "timestamp": data.get('timestamp', datetime.utcnow())  # If timestamp isn't passed, use current time
+            "timestamp": datetime.utcnow()
         }
 
     # Save event data to MongoDB
