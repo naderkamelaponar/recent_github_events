@@ -50,7 +50,7 @@ def handle_webhook():
     if not data:
         return jsonify({"error": "No data received"}), 400
     event_type = request.headers.get('X-GitHub-Event')
-
+    print(data)
     if event_type == "push":
         event_data = {
             "action": event_type,
