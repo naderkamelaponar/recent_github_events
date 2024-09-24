@@ -60,7 +60,7 @@
       eventsDiv.innerHTML = '';  // Clear old events
 
       events.forEach(event => {
-        const eventHtml = `<p>${event.author} ${event.action} to ${event.to_branch} on ${new Date(event.timestamp).toLocaleString()}</p>`;
+        const eventHtml = `<p>${event}</p>`;
         eventsDiv.innerHTML += eventHtml;
       });
     }
