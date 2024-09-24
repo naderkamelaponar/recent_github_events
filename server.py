@@ -61,7 +61,7 @@ def handle_webhook():
     collection.insert_one(event_data)  # Save to MongoDB
     return jsonify({"status": "success"}), 200
 
-# API endpoint to fetch events for the UI
+# API endpoint to fetch events for the UI 
 @app.route('/events', methods=['GET'])
 def get_events():
     # Fetch latest events (within the last 15 seconds) from MongoDB
