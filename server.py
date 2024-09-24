@@ -56,7 +56,7 @@ def handle_webhook():
             "action": event_type,
             "author": data.get('sender', {}).get('login'),
             "from_branch": data.get('ref', '').split('/')[-1],  # Extract branch from ref
-            "to_branch": "",  # Push event doesn't have a 'to_branch'
+            "to_branch": data.get('ref', '').split('/')[-1],
             "timestamp": datetime.utcnow()
         }
     elif event_type == "pull_request":
