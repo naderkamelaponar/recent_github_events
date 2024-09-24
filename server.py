@@ -66,7 +66,11 @@ def handle_webhook():
 def get_events():
     # Fetch latest events (within the last 15 seconds) from MongoDB
     events = list(collection.find().sort("timestamp", -1).limit(10))
+    for event in events:
+        event['timestamp'] = event['timestamp'].isoformat()
+
     serialized_events = json_util.dumps(events)
+    print(serialized_events)
     return serialized_events, 200
     return jsonify(events), 200
 
