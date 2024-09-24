@@ -66,12 +66,26 @@ def handle_webhook():
 def get_events():
     # Fetch latest events (within the last 15 seconds) from MongoDB
     events = list(collection.find().sort("timestamp", -1).limit(10))
-    for event in events:
-        event['timestamp'] = event['timestamp'].isoformat()
+    formatted_events = []
 
-    serialized_events = json_util.dumps(events)
-    print(serialized_events)
-    return serialized_events, 200
+    for event in events:
+        action = event["action"]
+        author = event["author"]
+        from_branch = event["from_branch"]
+        to_branch = event["to_branch"]
+        timestamp = event["timestamp"].strftime("%d %b %Y - %I:%M %p UTC")
+
+        if action == "push":
+            formatted_event = f"{author} pushed to {to_branch} on {timestamp}"
+        elif action == "pull_request":
+            formatted_event = f"{author} submitted a pull request from {from_branch} to {to_branch} on {timestamp}"
+        elif action == "merge":
+            formatted_event = f"{author} merged branch {from_branch} to {to_branch} on {timestamp}"
+        else:
+            pass
+
+        formatted_events.append(formatted_event)
+    return json_util.dumps(formatted_events), 200
     #return jsonify(events), 200
 
 if __name__ == "__main__":
