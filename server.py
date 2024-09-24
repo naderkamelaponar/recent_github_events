@@ -49,16 +49,37 @@ def handle_webhook():
     data = request.json
     if not data:
         return jsonify({"error": "No data received"}), 400
+    event_type = request.headers.get('X-GitHub-Event')
 
-    # Store necessary data in MongoDB
-    event_data = {
-        "action": request.headers.get('X-GitHub-Event'),
-        "author": data.get('sender', {}).get('login'),
-        "from_branch": data.get('pull_request', {}).get('head', {}).get('ref', ''),
-        "to_branch": data.get('ref'),
-        "timestamp": datetime.utcnow()  # Store the time the event was received
-    }
-    collection.insert_one(event_data)  # Save to MongoDB
+    if event_type == "push":
+        event_data = {
+            "action": event_type,
+            "author": data.get('sender', {}).get('login'),
+            "from_branch": data.get('ref', '').split('/')[-1],  # Extract branch from ref
+            "to_branch": "",  # Push event doesn't have a 'to_branch'
+            "timestamp": datetime.utcnow()
+        }
+    elif event_type == "pull_request":
+        event_data = {
+            "action": event_type,
+            "author": data.get('sender', {}).get('login'),
+            "from_branch": data.get('pull_request', {}).get('head', {}).get('ref', ''),
+            "to_branch": data.get('pull_request', {}).get('base', {}).get('ref', ''),  # Corrected to base.ref
+            "timestamp": datetime.utcnow()
+        }
+    elif event_type == "merge":
+        event_data = {
+            "action": event_type,
+            "author": data.get('sender', {}).get('login'),
+            "from_branch": data.get('pull_request', {}).get('head', {}).get('ref', ''),
+            "to_branch": data.get('pull_request', {}).get('base', {}).get('ref', ''),
+            "timestamp": datetime.utcnow()
+        }
+    else:
+        return jsonify({"error": "Unsupported event type"}), 400
+
+    # Save event data to MongoDB
+    collection.insert_one(event_data)
     return jsonify({"status": "success"}), 200
 
 # API endpoint to fetch events for the UI 
