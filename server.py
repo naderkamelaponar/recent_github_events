@@ -72,7 +72,7 @@ def get_events():
     serialized_events = json_util.dumps(events)
     print(serialized_events)
     return serialized_events, 200
-    return jsonify(events), 200
+    #return jsonify(events), 200
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
